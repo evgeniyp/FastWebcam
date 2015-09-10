@@ -119,8 +119,12 @@ namespace FastWebCam
         {
             if (_serialPort != null)
             {
-                _serialPortReader.Abort();
                 if (_serialPort.IsOpen) { _serialPort.Close(); }
+            }
+
+            if (_serialPortReader != null && _serialPortReader.IsAlive)
+            {
+                _serialPortReader.Abort();
             }
         }
     }
