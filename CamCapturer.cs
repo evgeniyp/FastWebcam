@@ -12,7 +12,7 @@ namespace FastWebCam
         private FilterInfoCollection _videoDevices;
         private VideoCaptureDevice _videoSource;
 
-        public event Action<System.Drawing.Image> NewFrame;
+        public event Action<System.Drawing.Image> OnNewFrame;
 
         public CamCapturer()
         {
@@ -62,9 +62,9 @@ namespace FastWebCam
 
         private void _videoSource_NewFrame(object sender, AForge.Video.NewFrameEventArgs eventArgs)
         {
-            if (NewFrame != null)
+            if (OnNewFrame != null)
             {
-                NewFrame(eventArgs.Frame);
+                OnNewFrame(eventArgs.Frame);
             }
         }
     }

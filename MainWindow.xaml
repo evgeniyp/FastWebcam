@@ -5,10 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FastWebCam"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525" Closing="Window_Closing">
+        FocusManager.FocusedElement="{Binding ElementName=TextBox_Input}"
+        Title="MainWindow" Height="400" Width="800" Closing="Window_Closing">
     <Grid>
-        <ComboBox Name="ComboBox_Webcams" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="ComboBox_Webcams_SelectionChanged"/>
-        <Image Name="Image_Frame" HorizontalAlignment="Left" Height="272" Margin="10,37,0,0" VerticalAlignment="Top" Width="497"/>
-
+        <ComboBox Name="ComboBox_Webcams" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="245" SelectionChanged="ComboBox_Webcams_SelectionChanged"/>
+        <Image Name="Image_Frame" HorizontalAlignment="Left" Height="272" Margin="10,37,0,0" VerticalAlignment="Top" Width="245"/>
+        <ComboBox Name="ComboBox_ComPorts" HorizontalAlignment="Left" Margin="260,9,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="ComboBox_ComPorts_SelectionChanged"/>
+        <TextBox Name="TextBox_Input" Height="23" Margin="385,9,10,0" TextWrapping="Wrap" VerticalAlignment="Top" FontFamily="Consolas" FontSize="14" KeyDown="TextBox_Input_KeyDown"/>
+        <ScrollViewer Margin="260,37,10,10" VerticalScrollBarVisibility="Auto">
+            <TextBox Name="TextBox_Console" Visibility="Visible" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" FontSize="12" FontFamily="Consolas" Height="Auto"/>
+        </ScrollViewer>
     </Grid>
 </Window>

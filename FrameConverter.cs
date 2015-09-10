@@ -16,6 +16,7 @@ namespace FastWebCam
             bi.StreamSource = ms;
             bi.EndInit();
             bi.Freeze();
+
             i.Dispose();
 
             return bi;
