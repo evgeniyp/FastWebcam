@@ -13,7 +13,11 @@ namespace FastWebCam
     {
         private const int DEVICE_MAX_CARET = 4899;
         private const int DEVICE_MAX_TABLE = 2999;
+        private const int CAMERA_RESOLUTION_WIDTH = 600;
+        private const int CAMERA_RESOLUTION_HEIGHT = 400;
 
+        private int lastCaret = 0;
+        private int lastTable = 0;
 
         private ImageSourceConverter _imageSourceConverter = new ImageSourceConverter();
         private CamCapturer _camCapturer;
@@ -113,6 +117,8 @@ namespace FastWebCam
         private void Calibrate()
         {
             SendCommand("G28\n");
+            lastCaret = 0;
+            lastTable = 0;
         }
 
         private void Panic()
@@ -120,10 +126,32 @@ namespace FastWebCam
             SendCommand("/X\n");
         }
 
-        private void Move(double caretRatio, double tableRatio)
+        private void Move(int caret, int table)
         {
-            var s = String.Format("Y{0:0.} X{1:0.}\n", caretRatio * DEVICE_MAX_CARET, tableRatio * DEVICE_MAX_TABLE);
+            caret = Math.Min(caret, DEVICE_MAX_CARET);
+            caret = Math.Max(caret, 0);
+
+            table = Math.Min(table, DEVICE_MAX_TABLE);
+            table = Math.Max(table, 0);
+
+            var s = String.Format("Y{0} X{1}\n", caret, table);
             SendCommand(s);
+            lastCaret = caret;
+            lastTable = table;
+        }
+
+        private void MoveByRatio(double caretRatio, double tableRatio)
+        {
+            var caret = (int)Math.Round(caretRatio * DEVICE_MAX_CARET);
+            var table = (int)Math.Round(tableRatio * DEVICE_MAX_TABLE);
+            Move(caret, table);
+        }
+
+        private void MoveByDelta(int deltaCaret, int deltaTable)
+        {
+            lastCaret += deltaCaret;
+            lastTable += deltaTable;
+            Move(lastCaret, lastTable);
         }
 
         private void SendCommand(string s)
@@ -157,6 +185,7 @@ namespace FastWebCam
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            Panic();
             _serialPortWrapper.Close();
             _camCapturer.Stop();
         }
@@ -172,7 +201,7 @@ namespace FastWebCam
             double xFromLeftRatio = position.X / width;
             double xFromTopRatio = position.Y / height;
 
-            Move(xFromLeftRatio, xFromTopRatio);
+            MoveByRatio(xFromLeftRatio, xFromTopRatio);
         }
 
         private void Button_PANIC_Click(object sender, RoutedEventArgs e)
@@ -183,6 +212,27 @@ namespace FastWebCam
         private void Button_CLBRT_Click(object sender, RoutedEventArgs e)
         {
             Calibrate();
+        }
+
+        private void Rectangle_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+        }
+
+        private void Image_Frame_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var image = sender as System.Windows.Controls.Image;
+            double width = image.ActualWidth;
+            double height = image.ActualHeight;
+
+            var position = e.GetPosition(sender as IInputElement);
+
+            double deltaCaretRatio = position.X / width - 0.5;
+            double deltaTableRatio = position.Y / height - 0.5;
+
+            int deltaCaret = (int)Math.Round(deltaCaretRatio * CAMERA_RESOLUTION_WIDTH);
+            int deltaTable = (int)Math.Round(deltaTableRatio * CAMERA_RESOLUTION_HEIGHT);
+
+            MoveByDelta(deltaCaret, deltaTable);
         }
     }
 }

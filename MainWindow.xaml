@@ -14,8 +14,8 @@
         <ScrollViewer Name="Scroll" Margin="385,37,10,0" VerticalScrollBarVisibility="Auto" Height="207" VerticalAlignment="Top">
             <TextBox Name="TextBox_Console" Visibility="Visible" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" FontSize="12" FontFamily="Consolas" Height="Auto"/>
         </ScrollViewer>
-        <Image Name="Image_Frame"  Margin="10,249,10,10"/>
-        <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="207" Margin="10,37,0,0" VerticalAlignment="Top" Width="370" Mouse.MouseDown="Rectangle_MouseDown" Stroke="Black"/>
+        <Image Name="Image_Frame" Margin="10,249,10,10" Mouse.MouseDown="Image_Frame_MouseDown"/>
+        <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="207" Margin="10,37,0,0" VerticalAlignment="Top" Width="370" Mouse.MouseDown="Rectangle_MouseDown" Mouse.MouseMove="Rectangle_MouseMove" Stroke="Black"/>
         <Button Content="PANIC" HorizontalAlignment="Left" Margin="330,9,0,0" VerticalAlignment="Top" Width="50" Height="23" Click="Button_PANIC_Click" />
         <Button Content="CLBRT" HorizontalAlignment="Left" Margin="275,9,0,0" VerticalAlignment="Top" Width="50" Height="23" Click="Button_CLBRT_Click"/>
     </Grid>
