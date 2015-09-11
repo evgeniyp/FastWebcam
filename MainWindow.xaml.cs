@@ -11,6 +11,10 @@ namespace FastWebCam
 {
     public partial class MainWindow : Window
     {
+        private const int DEVICE_MAX_CARET = 4899;
+        private const int DEVICE_MAX_TABLE = 2999;
+
+
         private ImageSourceConverter _imageSourceConverter = new ImageSourceConverter();
         private CamCapturer _camCapturer;
         private SerialPortWrapper _serialPortWrapper;
@@ -33,6 +37,8 @@ namespace FastWebCam
             if (ComboBox_ComPorts.Items.Count > 0)
             {
                 ComboBox_ComPorts.SelectedIndex = 0;
+                Blow();
+                Calibrate();
             }
         }
 
@@ -62,6 +68,7 @@ namespace FastWebCam
             Dispatcher.BeginInvoke((Action)delegate
             {
                 TextBox_Console.Text += s + '\n';
+                Scroll.ScrollToEnd();
             });
         }
 
@@ -98,6 +105,34 @@ namespace FastWebCam
             }));
         }
 
+        private void Blow()
+        {
+            SendCommand("\n");
+        }
+
+        private void Calibrate()
+        {
+            SendCommand("G28\n");
+        }
+
+        private void Panic()
+        {
+            SendCommand("/X\n");
+        }
+
+        private void Move(double caretRatio, double tableRatio)
+        {
+            var s = String.Format("Y{0:0.} X{1:0.}\n", caretRatio * DEVICE_MAX_CARET, tableRatio * DEVICE_MAX_TABLE);
+            SendCommand(s);
+        }
+
+        private void SendCommand(string s)
+        {
+            TextBox_Console.Text += s;
+            Scroll.ScrollToEnd();
+            _serialPortWrapper.Send(s);
+        }
+
         private void ComboBox_Webcams_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             _camCapturer.ChangeCam(ComboBox_Webcams.SelectedIndex);
@@ -115,7 +150,7 @@ namespace FastWebCam
             if (e.Key == System.Windows.Input.Key.Enter)
             {
                 var s = TextBox_Input.Text + '\n';
-                _serialPortWrapper.Send(s);
+                SendCommand(s);
                 TextBox_Input.Text = "";
             }
         }
@@ -124,6 +159,30 @@ namespace FastWebCam
         {
             _serialPortWrapper.Close();
             _camCapturer.Stop();
+        }
+
+        private void Rectangle_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var rectangle = sender as System.Windows.Shapes.Rectangle;
+            double width = rectangle.ActualWidth;
+            double height = rectangle.ActualHeight;
+
+            var position = e.GetPosition(sender as IInputElement);
+
+            double xFromLeftRatio = position.X / width;
+            double xFromTopRatio = position.Y / height;
+
+            Move(xFromLeftRatio, xFromTopRatio);
+        }
+
+        private void Button_PANIC_Click(object sender, RoutedEventArgs e)
+        {
+            Panic();
+        }
+
+        private void Button_CLBRT_Click(object sender, RoutedEventArgs e)
+        {
+            Calibrate();
         }
     }
 }
