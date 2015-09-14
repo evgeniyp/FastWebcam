@@ -12,7 +12,7 @@ namespace FastWebCam
         private FilterInfoCollection _videoDevices;
         private VideoCaptureDevice _videoSource;
 
-        public event Action<System.Drawing.Image> OnNewFrame;
+        public event Action<System.Drawing.Bitmap> OnNewFrame;
 
         public CamCapturer()
         {
@@ -41,8 +41,10 @@ namespace FastWebCam
         {
             if (_videoSource != null && _videoSource.IsRunning)
             {
+                _videoSource.NewFrame -= _videoSource_NewFrame;
                 _videoSource.SignalToStop();
-                _videoSource.WaitForStop();
+                //_videoSource.WaitForStop(); // hangs
+                _videoSource = null;
             }
         }
 
@@ -50,10 +52,7 @@ namespace FastWebCam
         {
             if (camNumber > -1 && _videoDevices.Count > 0 && camNumber < _videoDevices.Count)
             {
-                if (_videoSource != null && _videoSource.IsRunning)
-                {
-                    Stop();
-                }
+                Stop();
 
                 _videoSource = new VideoCaptureDevice(_videoDevices[camNumber].MonikerString);
                 _videoSource.NewFrame += _videoSource_NewFrame;

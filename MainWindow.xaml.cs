@@ -3,7 +3,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Text;
-using System.Threading;
 using System.IO.Ports;
 using System;
 
@@ -99,14 +98,12 @@ namespace FastWebCam
             }
         }
 
-        private void camCapturer_NewFrame(System.Drawing.Image frame)
+        private void camCapturer_NewFrame(System.Drawing.Bitmap bitmap)
         {
-            var source = FrameConverter.ImageToBitmapImage(frame);
-
-            Dispatcher.BeginInvoke(new ThreadStart(delegate
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                Image_Frame.Source = source;
-            }));
+                Image_Frame.Source = FrameConverter.BitmapToBitmapImage(bitmap);
+            });
         }
 
         private void Blow()
@@ -173,7 +170,7 @@ namespace FastWebCam
             _serialPortWrapper.Open(ComboBox_ComPorts.SelectedItem.ToString());
         }
 
-        private void TextBox_Input_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void TextBox_Input_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key == System.Windows.Input.Key.Enter)
             {
@@ -192,7 +189,7 @@ namespace FastWebCam
 
         private void Rectangle_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var rectangle = sender as System.Windows.Shapes.Rectangle;
+            var rectangle = sender as Canvas;
             double width = rectangle.ActualWidth;
             double height = rectangle.ActualHeight;
 
@@ -233,6 +230,30 @@ namespace FastWebCam
             int deltaTable = (int)Math.Round(deltaTableRatio * CAMERA_RESOLUTION_HEIGHT);
 
             MoveByDelta(deltaCaret, deltaTable);
+        }
+
+        private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (TextBox_Input.Text.Length == 0)
+            {
+                switch (e.Key)
+                {
+                    case System.Windows.Input.Key.Down:
+                        MoveByDelta(0, 1);
+                        break;
+                    case System.Windows.Input.Key.Up:
+                        MoveByDelta(0, -1);
+                        break;
+                    case System.Windows.Input.Key.Left:
+                        MoveByDelta(-1, 0);
+                        break;
+                    case System.Windows.Input.Key.Right:
+                        MoveByDelta(1, 0);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 }
