@@ -8,11 +8,15 @@ namespace FastWebCam
 {
     public class SerialPortWrapper
     {
+        private const string DEFAULT_SEND_DELIMITER = "\r\n";
+        private const string DEFAULT_RECEIVE_DELIMITER = "\r\n";
+
         public event Action<Exception> OnException;
-        public event Action<string> OnData;
+        public event Action<string> OnStringReceived;
 
         private Encoding _encoding;
-        private string _delimiter;
+        private string _sendDelimiter;
+        private string _receiveDelimiter;
         private byte[] _serialPortBuffer = new byte[65536];
         private Thread _serialPortReader;
         private SerialPort _serialPort;
@@ -20,11 +24,19 @@ namespace FastWebCam
         private object _receiveStringLock = new object();
         private string _receiveString;
 
-        public SerialPortWrapper(Encoding encoding, string delimiter = "\r\n")
+        public SerialPortWrapper(Encoding encoding,
+                                 string sendDelimiter = DEFAULT_SEND_DELIMITER,
+                                 string receiveDelimiter = DEFAULT_RECEIVE_DELIMITER)
         {
             _receiveString = "";
             _encoding = encoding;
-            _delimiter = delimiter;
+            _sendDelimiter = sendDelimiter;
+            _receiveDelimiter = receiveDelimiter;
+        }
+
+        public bool IsOpen()
+        {
+            return _serialPort.IsOpen;
         }
 
         public bool Open(string portName)
@@ -32,7 +44,6 @@ namespace FastWebCam
             _receiveString = "";
 
             _serialPort = new SerialPort(portName);
-            _serialPort.ReadTimeout = 1000;
             _serialPort.Encoding = _encoding;
             _serialPort.BaudRate = 115200;
             _serialPort.Parity = Parity.None;
@@ -59,9 +70,34 @@ namespace FastWebCam
             return true;
         }
 
-        public void Send(string s)
+        public void Blow()
         {
-            var bytes = _encoding.GetBytes(s);
+            try
+            {
+                SendString(_sendDelimiter);
+            }
+            catch (Exception e)
+            {
+                if (OnException != null) { OnException(e); }
+            }
+        }
+
+        public void Close()
+        {
+            if (_serialPort != null)
+            {
+                if (_serialPort.IsOpen) { _serialPort.Close(); }
+            }
+
+            if (_serialPortReader != null && _serialPortReader.IsAlive)
+            {
+                _serialPortReader.Abort();
+            }
+        }
+
+        public void SendString(string s)
+        {
+            var bytes = _encoding.GetBytes(s + _sendDelimiter);
 
             try
             {
@@ -90,14 +126,14 @@ namespace FastWebCam
                             _receiveString += s;
 
                             int delimiterPosition;
-                            while ((delimiterPosition = _receiveString.IndexOf(_delimiter)) > -1)
+                            while ((delimiterPosition = _receiveString.IndexOf(_receiveDelimiter)) > -1)
                             {
                                 string line = _receiveString.Substring(0, delimiterPosition);
-                                _receiveString = _receiveString.Substring(delimiterPosition + _delimiter.Length);
+                                _receiveString = _receiveString.Substring(delimiterPosition + _receiveDelimiter.Length);
 
-                                if (line.Length > 0 && OnData != null)
+                                if (line.Length > 0 && OnStringReceived != null)
                                 {
-                                    OnData(line);
+                                    OnStringReceived(line);
                                 }
                             }
                         }
@@ -115,17 +151,5 @@ namespace FastWebCam
             }
         }
 
-        public void Close()
-        {
-            if (_serialPort != null)
-            {
-                if (_serialPort.IsOpen) { _serialPort.Close(); }
-            }
-
-            if (_serialPortReader != null && _serialPortReader.IsAlive)
-            {
-                _serialPortReader.Abort();
-            }
-        }
     }
 }

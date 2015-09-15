@@ -20,7 +20,7 @@
         <Button Content="PANIC" HorizontalAlignment="Left" Margin="330,9,0,0" VerticalAlignment="Top" Width="50" Height="23" Click="Button_PANIC_Click" />
         <Button Content="CLBRT" HorizontalAlignment="Left" Margin="275,9,0,0" VerticalAlignment="Top" Width="50" Height="23" Click="Button_CLBRT_Click"/>
 
-        <Image Name="Image_Frame" Margin="10,249,10,10" Mouse.MouseDown="Image_Frame_MouseDown" Cursor="Cross"/>
+        <Image Name="Image_Frame" Margin="10,249,10,10" Mouse.PreviewMouseDown="Image_Frame_PreviewMouseDown" Cursor="Cross"/>
         <Border Cursor="Cross" BorderBrush="Red" BorderThickness="1" Height="100" VerticalAlignment="Center" Width="1" Margin="10,249,10,10" HorizontalAlignment="Center"/>
         <Border Cursor="Cross" BorderBrush="Red" BorderThickness="1" Height="1" VerticalAlignment="Center" Width="100" Margin="10,249,10,10" HorizontalAlignment="Center"/>
     </Grid>
