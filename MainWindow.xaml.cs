@@ -1,4 +1,5 @@
-﻿using System.Windows.Threading;
+﻿using OpenCvSharp.Extensions;
+using System.Windows.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -10,8 +11,8 @@ namespace FastWebCam
 {
     public partial class MainWindow : Window
     {
-        private const int CAMERA_RESOLUTION_WIDTH = 600;
-        private const int CAMERA_RESOLUTION_HEIGHT = 400;
+        private const int CAMERA_RESOLUTION_WIDTH = 319;
+        private const int CAMERA_RESOLUTION_HEIGHT = 240;
 
         private int lastCaret = 0;
         private int lastTable = 0;
@@ -20,6 +21,7 @@ namespace FastWebCam
         private CamCapturer _camCapturer;
         private SerialPortWrapper _serialPortWrapper;
         private Device _device;
+        private System.Drawing.Bitmap _lastBitmap;
 
         public MainWindow()
         {
@@ -94,7 +96,8 @@ namespace FastWebCam
         {
             Dispatcher.Invoke(() =>
             {
-                Image_Frame.Source = FrameConverter.BitmapToBitmapImage(bitmap);
+                _lastBitmap = bitmap.Clone() as System.Drawing.Bitmap;
+                Image_Frame.Source = FrameConverter.BitmapToBitmapImage(_lastBitmap);
             });
         }
 
@@ -208,6 +211,14 @@ namespace FastWebCam
             int deltaTable = (int)Math.Round(deltaTableRatio * CAMERA_RESOLUTION_HEIGHT);
 
             _device.MoveByDelta(deltaCaret, deltaTable);
+        }
+
+        private void Button_Detect_Click(object sender, RoutedEventArgs e)
+        {
+            var image = _lastBitmap.ToIplImage();
+            var result = Recognition.LocateRectangles(image);
+
+            new OpenCvSharp.CvWindow(result);
         }
     }
 }

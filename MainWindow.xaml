@@ -6,12 +6,12 @@
         xmlns:local="clr-namespace:FastWebCam"
         mc:Ignorable="d"
         FocusManager.FocusedElement="{Binding ElementName=TextBox_Input}"
-        Title="MainWindow" Height="612" Width="600" Closing="Window_Closing"
+        Title="MainWindow" Height="774.434" Width="810.151" Closing="Window_Closing"
         PreviewKeyDown="Window_PreviewKeyDown">
     <Grid>
         <ComboBox Name="ComboBox_Webcams" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="181" SelectionChanged="ComboBox_Webcams_SelectionChanged"/>
         <ComboBox Name="ComboBox_ComPorts" HorizontalAlignment="Left" Margin="196,10,0,0" VerticalAlignment="Top" Width="74" SelectionChanged="ComboBox_ComPorts_SelectionChanged"/>
-        <TextBox Name="TextBox_Input" Height="23" Margin="385,9,10,0" TextWrapping="Wrap" VerticalAlignment="Top" FontFamily="Consolas" FontSize="14" PreviewKeyDown="TextBox_Input_PreviewKeyDown"/>
+        <TextBox Name="TextBox_Input" Height="23" Margin="385,9,10,0" TextWrapping="Wrap" VerticalAlignment="Top" FontFamily="Consolas" FontSize="14" PreviewKeyDown="TextBox_Input_PreviewKeyDown" Visibility="Hidden"/>
         <ScrollViewer Name="Scroll" Margin="275,37,10,0" VerticalScrollBarVisibility="Auto" Height="207" VerticalAlignment="Top">
             <TextBox Name="TextBox_Console" Visibility="Visible" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" FontSize="12" FontFamily="Consolas" Height="Auto" BorderBrush="{x:Null}"/>
         </ScrollViewer>
@@ -20,8 +20,9 @@
         <Button Content="PANIC" HorizontalAlignment="Left" Margin="330,9,0,0" VerticalAlignment="Top" Width="50" Height="23" Click="Button_PANIC_Click" />
         <Button Content="CLBRT" HorizontalAlignment="Left" Margin="275,9,0,0" VerticalAlignment="Top" Width="50" Height="23" Click="Button_CLBRT_Click"/>
 
-        <Image Name="Image_Frame" Margin="10,249,10,10" Mouse.PreviewMouseDown="Image_Frame_PreviewMouseDown" Cursor="Cross"/>
-        <Border Cursor="Cross" BorderBrush="Red" BorderThickness="1" Height="100" VerticalAlignment="Center" Width="1" Margin="10,249,10,10" HorizontalAlignment="Center"/>
-        <Border Cursor="Cross" BorderBrush="Red" BorderThickness="1" Height="1" VerticalAlignment="Center" Width="100" Margin="10,249,10,10" HorizontalAlignment="Center"/>
+        <Image Name="Image_Frame" Margin="10,249,10,10" Mouse.PreviewMouseDown="Image_Frame_PreviewMouseDown" Cursor="Cross" HorizontalAlignment="Left" Width="640" Height="480"/>
+        <Border Cursor="Cross" BorderBrush="Red" BorderThickness="1" Height="100" VerticalAlignment="Center" Width="1" Margin="330,249,10,10" HorizontalAlignment="Left"/>
+        <Border Cursor="Cross" BorderBrush="Red" BorderThickness="1" Height="1" VerticalAlignment="Center" Width="100" Margin="280,249,10,10" HorizontalAlignment="Left"/>
+        <Button Name="Button_Detect" Content="Detect" HorizontalAlignment="Left" Margin="655,249,0,0" VerticalAlignment="Top" Width="130" Click="Button_Detect_Click"/>
     </Grid>
 </Window>
