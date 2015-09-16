@@ -198,6 +198,7 @@ namespace FastWebCam
             // Тут будем хранить найденные прямоугольники
             ArrayList rectangles = new ArrayList();
 
+
             //Собственно разбираем кадр и ищем прямоугольные объекты
             using (CvMemStorage storage = new CvMemStorage(0))
             {
@@ -224,8 +225,8 @@ namespace FastWebCam
                     CvPoint2D32f[] pt;
                     Cv.BoxPoints(box, out pt);
 
-                    // не рассматриваем объекты, площадь которых больше 90% кадра
-                    double _img_area = (double)(dst.Height * dst.Width) * 0.9;
+                    // не рассматриваем объекты, площадь которых больше 60% кадра
+                    double _img_area = (double)(dst.Height * dst.Width) * 0.6;
 
                     double _box_area = box.Size.Height * box.Size.Width;
 
@@ -241,36 +242,23 @@ namespace FastWebCam
                         double _box_angle = box.Angle;
                         _angle = BoxAngle(pt);
                         rectangles.Add(box);
-                        /*
-                                                bool _found = false;
-                                                // Добавляем найденный прямоугольник, если еще не добавлено такого-же (внутреннего или внешнего)
-                                                if (rectangles.Count == 0)
-                                                {
-                                                    rectangles.Add(box);
-                                                    _found = true;
-                                                }
-                                                else
-                                                    for (int i = 0; i < rectangles.Count; i++)
-                                                    {
-                                                        CvBox2D prev_box = (CvBox2D)rectangles[i];
-                                                        CvPoint2D32f[] prev_pt;
-                                                        Cv.BoxPoints(prev_box, out prev_pt);
-                                                        // углы могут быть от -90 до +90
-                                                        double prev_angle = BoxAngle(prev_pt);
 
-                                                        if (Math.Abs(prev_box.Center.X - box.Center.X) < 10 &&
-                                                            Math.Abs(prev_box.Center.Y - box.Center.Y) < 10 &&
-                                                            Math.Abs(prev_angle - _angle) < 5)
-                                                        {
-                                                            _found = true;
-                                                        }
-                                                    }
+                        if (false)
+                            using (IplImage _gray = src.Clone())
+                            {
+                                Cv.BoxPoints(box, out pt);
+                                Cv.Line(_gray, pt[0], pt[1], CvColor.Red, 3);
+                                Cv.Line(_gray, pt[1], pt[2], CvColor.Red, 3);
+                                Cv.Line(_gray, pt[2], pt[3], CvColor.Red, 3);
+                                Cv.Line(_gray, pt[3], pt[0], CvColor.Red, 3);
 
-                                                if (!_found)
-                                                {
-                                                    rectangles.Add(box);
-                                                }
-                         */
+                                Cv.NamedWindow("Box", WindowMode.AutoSize);
+                                Cv.ShowImage("Box", _gray);
+
+                                Cv.WaitKey(0);
+                                Cv.DestroyAllWindows();
+                            }
+
                     }
                 }
             }
@@ -285,14 +273,42 @@ namespace FastWebCam
 
             // удаляем все внутренние
             for (int i = rectangles.Count - 1; i > 0; i--)
-            {
-                Cv.BoxPoints(((CvBox2D)rectangles[i - 1]), out p);
-
-                if (point_is_inside_rect(((CvBox2D)rectangles[i]).Center, p))
+                for (int j = i - 1; j >= 0; j--)
                 {
-                    rectangles.RemoveAt(i);
+                    Cv.BoxPoints(((CvBox2D)rectangles[j]), out p);
+
+                    if (false)
+                        using (IplImage _gray = src.Clone())
+                        {
+
+                            Cv.Line(_gray, p[0], p[1], CvColor.Red, 3);
+                            Cv.Line(_gray, p[1], p[2], CvColor.Red, 3);
+                            Cv.Line(_gray, p[2], p[3], CvColor.Red, 3);
+                            Cv.Line(_gray, p[3], p[0], CvColor.Red, 3);
+
+                            CvPoint2D32f[] p2;
+                            Cv.BoxPoints(((CvBox2D)rectangles[i]), out p2);
+                            Cv.Circle(_gray, ((CvBox2D)rectangles[i]).Center, 5, CvColor.Blue, 2, LineType.AntiAlias, 0);
+                            Cv.Line(_gray, p2[0], p2[1], CvColor.Blue, 3);
+                            Cv.Line(_gray, p2[1], p2[2], CvColor.Blue, 3);
+                            Cv.Line(_gray, p2[2], p2[3], CvColor.Blue, 3);
+                            Cv.Line(_gray, p2[3], p2[0], CvColor.Blue, 3);
+
+
+                            Cv.NamedWindow("Box", WindowMode.AutoSize);
+                            Cv.ShowImage("Box", _gray);
+
+                            Cv.WaitKey(0);
+                            Cv.DestroyAllWindows();
+                        }
+
+
+                    if (point_is_inside_rect(((CvBox2D)rectangles[i]).Center, p))
+                    {
+                        rectangles.RemoveAt(i);
+                        break;
+                    }
                 }
-            }
 
 
             // подсвечиваем все найденные прямоугольники
